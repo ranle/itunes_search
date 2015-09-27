@@ -77,7 +77,7 @@ module ItunesSearch
       end
 
       number = number['href'].match(/page=(.+?)#/)[1]
-      Rails.logger.info("Scan page: ##{number}")
+      Rails.logger.info("Scan page: ##{number}, category: #{@category}, letter: #{@category_letter}")
       if number == @next_page_number
         raise 'EndOfScan'
       else
