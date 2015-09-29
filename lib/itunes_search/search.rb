@@ -30,8 +30,9 @@ module ItunesSearch
       @category = data[:category]
       @category_id = data[:category_id]
       @category_letter = data[:category_letter]
-      html = open(init_query_url, {ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE}).read()
-      p html.html_safe
+      @next_page_number = data[:current_page] || nil
+      html = open(init_query_url, {:ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE}).read()
+      # p html.html_safe
       itunes_html = Nokogiri::HTML(html)
       get_next_page_number(itunes_html)
       AppParser.new(html).parse
