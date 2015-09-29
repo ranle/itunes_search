@@ -33,7 +33,11 @@ module ItunesSearch
       # self.screenshots = get_screenshots(itunes_html)
       # self.long_description = get_long_description(itunes_html)
       self
-    rescue
+    rescue => e
+      if Rails.env.production?
+        NewRelic::Agent.notice_error(e)
+      end
+      puts e.backtrace.join("\n")
       self
     end
 
