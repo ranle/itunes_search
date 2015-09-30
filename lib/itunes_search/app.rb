@@ -12,8 +12,8 @@ module ItunesSearch
                   :developer_email, :developer_address, :screenshots,
                   :long_description, :reviews_count
 
-    def get_all_details
-      html = open(self.url, {ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE}).read()
+    def get_all_details(options={})
+      html = open(self.url, options).read()
       itunes_html = Nokogiri::HTML(html)
 
       # self.version = get_version(itunes_html)

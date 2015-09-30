@@ -33,21 +33,21 @@ module ItunesSearch
       if data[:current_page].present?
         @next_page_number = data[:current_page]
       end
-      html = open(init_query_url, {:ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE}).read()
+      html = open(init_query_url, options).read()
       # p html.html_safe
       itunes_html = Nokogiri::HTML(html)
       get_next_page_number(itunes_html)
       AppParser.new(html).parse
     end
 
-    def next_page
+    def next_page(options={})
       @current_page += 1
       data = {
           :category => @category,
           :category_id => @category_id,
           :category_letter => @category_letter
       }
-      search data
+      search(data, options)
     end
 
     private
