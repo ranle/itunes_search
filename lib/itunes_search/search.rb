@@ -6,7 +6,7 @@ require File.expand_path(File.dirname(__FILE__) + '/app_parser')
 
 module ItunesSearch
   class Search
-    attr_accessor :current_page, :category, :category_id, :category_letter, :next_page_number
+    attr_accessor :current_page, :category, :category_id, :category_letter, :next_page_number, :proxies, :username, :password
 
     $ITUNES_BASE_URL = 'https://itunes.apple.com'
 
@@ -19,8 +19,11 @@ module ItunesSearch
                                 #:safe_search => "0",
                                 :rating => '0'}
 
-    def initialize(search_condition = DEFAULT_SEARCH_CONDITION)
+    def initialize(search_condition = DEFAULT_SEARCH_CONDITION, proxies=[], username=nil, password=nil)
       @search_condition = DEFAULT_SEARCH_CONDITION.merge(search_condition)
+      @proxies = proxies
+      @username = username
+      @password = password
 
       @next_page_number = nil
       @current_page = 1
@@ -33,14 +36,36 @@ module ItunesSearch
       if data[:current_page].present?
         @next_page_number = data[:current_page]
       end
-      html = open(init_query_url, options).read()
+      html = self.get_html options
       # p html.html_safe
       itunes_html = Nokogiri::HTML(html)
       get_next_page_number(itunes_html)
       AppParser.new(html).parse
     end
 
+    def get_html(options={})
+      if @proxies.present?
+        options[:proxy_http_basic_authentication] = ["http://#{@proxies.sample}", @username, @password]
+      end
+      success = false
+      response = nil
+      while !success
+        begin
+          response = open(init_query_url, options).read()
+          success = true
+        rescue OpenURI::HTTPError => ex
+          p "Error! #{ex.io.status[0]}: #{ex.io.status[1]}"
+          options[:proxy_http_basic_authentication] = ["http://#{@proxies.sample}", @username, @password]
+        end
+      end
+      response
+    end
+
     def next_page(options={})
+      if @proxies.present?
+        options[:proxy_http_basic_authentication] = ["http://#{@proxies.sample}", @username, @password]
+      end
+
       @current_page += 1
       data = {
           :category => @category,

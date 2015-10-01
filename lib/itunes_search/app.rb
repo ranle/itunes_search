@@ -12,8 +12,8 @@ module ItunesSearch
                   :developer_email, :developer_address, :screenshots,
                   :long_description, :reviews_count
 
-    def get_all_details(options={})
-      html = open(self.url, options).read()
+    def get_all_details(options={}, proxies=[], username=nil, password=nil)
+      html = self.get_html options, proxies, username, password
       itunes_html = Nokogiri::HTML(html)
 
       # self.version = get_version(itunes_html)
@@ -39,6 +39,25 @@ module ItunesSearch
       end
       puts e.backtrace.join("\n")
       self
+    end
+
+    def get_html(options={}, proxies=[], username=nil, password=nil)
+      if proxies.present?
+        options[:proxy_http_basic_authentication] = ["http://#{proxies.sample}", username, password]
+      end
+      success = false
+      response = nil
+      while !success
+        begin
+          response = open(self.url, options).read()
+          success = true
+        rescue OpenURI::HTTPError => ex
+          p "Error! #{ex.io.status[0]}: #{ex.io.status[1]}"
+          options[:proxy_http_basic_authentication] = ["http://#{proxies.sample}", username, password]
+
+        end
+      end
+      response
     end
 
     private
