@@ -44,8 +44,10 @@ module ItunesSearch
     end
 
     def get_html(options={})
+      proxy = nil
       if @proxies.present?
-        options[:proxy_http_basic_authentication] = ["http://#{@proxies.sample}", @username, @password]
+        proxy = "http://#{proxies.sample}"
+        options[:proxy_http_basic_authentication] = [proxy, @username, @password]
       end
       success = false
       response = nil
@@ -54,18 +56,18 @@ module ItunesSearch
           response = open(init_query_url, options).read()
           success = true
         rescue OpenURI::HTTPError => ex
-          p "Error! #{ex.io.status[0]}: #{ex.io.status[1]}"
-          options[:proxy_http_basic_authentication] = ["http://#{@proxies.sample}", @username, @password]
+          p "Error! #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}"
+          if Rails.env.production?
+            NewRelic::Agent.notice_error("Error! #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
+          end
+          proxy = "http://#{proxies.sample}"
+          options[:proxy_http_basic_authentication] = [proxy, @username, @password]
         end
       end
       response
     end
 
     def next_page(options={})
-      if @proxies.present?
-        options[:proxy_http_basic_authentication] = ["http://#{@proxies.sample}", @username, @password]
-      end
-
       @current_page += 1
       data = {
           :category => @category,
