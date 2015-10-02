@@ -39,11 +39,11 @@ module ItunesSearch
         NewRelic::Agent.notice_error(ex)
       end
       p ex.backtrace.join("\n")
-      logger.info("get_all_details Error! ##{10-tries} #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
+      Rails.logger.info("get_all_details Error! ##{10-tries} #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
       retry unless (tries -= 1).zero?
       self
     else
-      logger.info('get_all_details Success!')
+      Rails.logger.info('get_all_details Success!')
     end
 
     def get_html(options={}, proxies=[], username=nil, password=nil)
