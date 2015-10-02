@@ -51,10 +51,14 @@ module ItunesSearch
           proxy = "http://#{@proxies.sample}"
           options[:proxy_http_basic_authentication] = [proxy, @username, @password]
         end
-        response = open(init_query_url, options).read()
+        obj = open(init_query_url, options)
+        response = obj.read()
       rescue OpenURI::HTTPError => ex
-        logger.info("get_html Error! ##{10-tries} #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
-        retry unless (tries -= 1).zero?
+        response = ex.io
+        if response.status[0] != '200'
+          logger.info("get_html Error! ##{10-tries} #{response.status[0]}: #{response.status[1]} (proxy: #{proxy}")
+          retry unless (tries -= 1).zero?
+        end
       else
         logger.info('get_html Success!')
       end
