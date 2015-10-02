@@ -57,7 +57,7 @@ module ItunesSearch
         rescue OpenURI::HTTPError => ex
           p "Error! #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}"
           if Rails.env.production?
-            NewRelic::Agent.notice_error("Error! #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
+            NewRelic::Agent.notice_error(ex)
           end
           proxy = "http://#{proxies.sample}"
           options[:proxy_http_basic_authentication] = [proxy, username, password]
