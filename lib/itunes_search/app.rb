@@ -60,11 +60,11 @@ module ItunesSearch
       rescue OpenURI::HTTPError => ex
         response = ex.io
         if response.status[0] != '200'
-          logger.info("get_html Error! ##{10-tries} #{response.status[0]}: #{response.status[1]} (proxy: #{proxy}")
+          Rails.logger.info("get_html Error! ##{10-tries} #{response.status[0]}: #{response.status[1]} (proxy: #{proxy}")
           retry unless (tries -= 1).zero?
         end
       else
-        logger.info('get_html Success!')
+        Rails.logger.info('get_html Success!')
       end
       response
     end
