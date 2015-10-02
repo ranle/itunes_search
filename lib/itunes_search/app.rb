@@ -13,6 +13,7 @@ module ItunesSearch
                   :long_description, :reviews_count
 
     def get_all_details(options={}, proxies=[], username=nil, password=nil)
+      tries ||= 10
       html = self.get_html options, proxies, username, password
       itunes_html = Nokogiri::HTML(html)
 
@@ -33,41 +34,37 @@ module ItunesSearch
       # self.screenshots = get_screenshots(itunes_html)
       # self.long_description = get_long_description(itunes_html)
       self
-    rescue => e
+    rescue OpenURI::HTTPError => ex
       if Rails.env.production?
-        NewRelic::Agent.notice_error(e)
+        NewRelic::Agent.notice_error(ex)
       end
-      puts e.backtrace.join("\n")
+      p ex.backtrace.join("\n")
+      logger.info("get_all_details Error! ##{10-tries} #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
+      retry unless (tries -= 1).zero?
       self
+    else
+      logger.info('get_all_details Success!')
     end
 
     def get_html(options={}, proxies=[], username=nil, password=nil)
       response = proxy = nil
-      success = false
-
-      if proxies.present?
-        proxy = "http://#{proxies.sample}"
-        options[:proxy_http_basic_authentication] = [proxy, username, password]
-      end
-
-      while !success
-        begin
-          response = open(self.url, options).read()
-          success = true
-        rescue OpenURI::HTTPError => ex
-          p "Error! #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}"
-          if Rails.env.production?
-            NewRelic::Agent.notice_error(ex)
-          end
+      tries = 10
+      begin
+        if proxies.present?
           proxy = "http://#{proxies.sample}"
           options[:proxy_http_basic_authentication] = [proxy, username, password]
         end
+        response = open(self.url, options).read()
+        success = true
+        logger.info("get_html Error! ##{10-tries} #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
+        retry unless (tries -= 1).zero?
+      else
+        logger.info('get_html Success!')
       end
       response
     end
 
     private
-
     def get_version(itunes_html)
       version = itunes_html.search("[itemprop=softwareVersion]").first
       version.content.strip if version

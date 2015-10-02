@@ -44,25 +44,19 @@ module ItunesSearch
     end
 
     def get_html(options={})
-      proxy = nil
-      if @proxies.present?
-        proxy = "http://#{proxies.sample}"
-        options[:proxy_http_basic_authentication] = [proxy, @username, @password]
-      end
-      success = false
-      response = nil
-      while !success
-        begin
-          response = open(init_query_url, options).read()
-          success = true
-        rescue OpenURI::HTTPError => ex
-          p "Error! #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}"
-          if Rails.env.production?
-            NewRelic::Agent.notice_error(ex)
-          end
-          proxy = "http://#{proxies.sample}"
+      response = proxy = nil
+      tries = 10
+      begin
+        if @proxies.present?
+          proxy = "http://#{@proxies.sample}"
           options[:proxy_http_basic_authentication] = [proxy, @username, @password]
         end
+        response = open(init_query_url, options).read()
+      rescue OpenURI::HTTPError => ex
+        logger.info("get_html Error! ##{10-tries} #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
+        retry unless (tries -= 1).zero?
+      else
+        logger.info('get_html Success!')
       end
       response
     end
