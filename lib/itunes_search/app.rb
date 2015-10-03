@@ -110,12 +110,19 @@ module ItunesSearch
     end
 
     def get_developer_website(itunes_html)
-      itunes_html.search('.app-links a').first['href']
+      result = nil
+      begin
+        result = itunes_html.search('.app-links a').first['href']
+      rescue e
+        Rails.logger.info('get_developer_website Rescued!')
+        nil
+      end
+      result
     end
 
     def get_developer_email(itunes_html)
       itunes_html.search("a[class='dev-link']").each do |ele|
-        return ele.content.strip.gsub("Email ", "") if ele.content.strip.index("Email")
+        return ele.content.strip.gsub('Email ', '') if ele.content.strip.index('Email')
       end
     end
 
