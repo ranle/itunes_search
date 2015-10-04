@@ -148,8 +148,8 @@ module ItunesSearch
     end
 
     def get_reviews_count(itunes_html)
-      get_reviews = itunes_html.search('div.rating').last
-      get_reviews.content.strip.gsub(/\D/, '') if get_reviews
+      get_reviews = itunes_html.search('[itemprop=reviewCounts]').last
+      get_reviews.content.strip.match(/\d+/) if get_reviews
     end
 
     def get_screenshots(itunes_html)
