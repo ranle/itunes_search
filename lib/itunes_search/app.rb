@@ -110,9 +110,9 @@ module ItunesSearch
     end
 
     def get_developer_website(itunes_html)
-      result = itunes_html.search('.app-links a').first
+      result = itunes_html.search('.app-links a')
       if result.present?
-        result = result['href']
+        result = result.first['href']
       end
       result
     end
