@@ -110,12 +110,9 @@ module ItunesSearch
     end
 
     def get_developer_website(itunes_html)
-      result = nil
-      begin
-        result = itunes_html.search('.app-links a').first['href']
-      rescue e
-        Rails.logger.info('get_developer_website Rescued!')
-        nil
+      result = itunes_html.search('.app-links a').first
+      if result.present?
+        result = result['href']
       end
       result
     end
