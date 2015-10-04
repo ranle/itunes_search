@@ -149,9 +149,9 @@ module ItunesSearch
 
     def get_reviews_count(itunes_html)
       get_reviews = itunes_html.search('div#rating-count').last
-      if !self.has_digits?(get_reviews)
+      if !has_digits?(get_reviews)
         get_reviews = itunes_html.search('[itemprop=reviewCount]').last
-        if !self.has_digits?(get_reviews)
+        if !has_digits?(get_reviews)
           get_reviews = 0
         end
       end
