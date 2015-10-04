@@ -148,7 +148,7 @@ module ItunesSearch
     end
 
     def get_reviews_count(itunes_html)
-      get_reviews = itunes_html.search('div#rating-count').last
+      get_reviews = itunes_html.search('div.rating-count').last
       if !(has_digits?(get_reviews))
         get_reviews = itunes_html.search('[itemprop=reviewCount]').last
         if !(has_digits?(get_reviews))
