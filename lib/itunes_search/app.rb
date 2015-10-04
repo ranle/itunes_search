@@ -149,10 +149,10 @@ module ItunesSearch
 
     def get_reviews_count(itunes_html)
       get_reviews = itunes_html.search('div#rating-count').last
-      if !has_digits?(get_reviews)
+      if !(has_digits?(get_reviews))
         get_reviews = itunes_html.search('[itemprop=reviewCount]').last
-        if !has_digits?(get_reviews)
-          get_reviews = 0
+        if !(has_digits?(get_reviews))
+          get_reviews = nil
         end
       end
       get_reviews.content.strip.match(/\d+/) if get_reviews
@@ -167,7 +167,11 @@ module ItunesSearch
     end
 
     def has_digits?(str)
-      str.count('0-9') > 0
+      result = false
+      if !str.nil?
+        result = str.count('0-9') > 0
+      end
+      result
     end
 
   end
