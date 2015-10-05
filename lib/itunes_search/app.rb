@@ -13,7 +13,7 @@ module ItunesSearch
                   :long_description, :reviews_count
 
     def get_all_details(options={}, proxies=[], username=nil, password=nil)
-      tries ||= 10
+      # tries ||= 10
       html = self.get_html options, proxies, username, password
       itunes_html = Nokogiri::HTML(html)
 
@@ -34,16 +34,18 @@ module ItunesSearch
       # self.screenshots = get_screenshots(itunes_html)
       # self.long_description = get_long_description(itunes_html)
       self
+=begin
     rescue OpenURI::HTTPError => ex
       if Rails.env.production?
         NewRelic::Agent.notice_error(ex)
       end
       p ex.backtrace.join("\n")
-      Rails.logger.info("get_all_details Error! ##{10-tries} #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
+      Rails.logger.info("ItunesSearch get_all_details Error! ##{10-tries} #{ex.io.status[0]}: #{ex.io.status[1]} (proxy: #{proxy}")
       retry unless (tries -= 1).zero?
       self
     else
-      Rails.logger.info('get_all_details Success!')
+      Rails.logger.info('ItunesSearch get_all_details Success!')
+=end
     end
 
     def get_html(options={}, proxies=[], username=nil, password=nil)
@@ -60,11 +62,11 @@ module ItunesSearch
       rescue OpenURI::HTTPError => ex
         response = ex.io
         if response.status[0] != '200'
-          Rails.logger.info("get_html Error! ##{10-tries} #{response.status[0]}: #{response.status[1]} (proxy: #{proxy}")
+          Rails.logger.info("ItunesSearch get_html Error! ##{10-tries} #{response.status[0]}: #{response.status[1]} (proxy: #{proxy}")
           retry unless (tries -= 1).zero?
         end
       else
-        Rails.logger.info('get_html Success!')
+        Rails.logger.info('ItunesSearch get_html Success!')
       end
       response
     end
