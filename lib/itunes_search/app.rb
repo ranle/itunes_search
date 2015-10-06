@@ -27,6 +27,12 @@ module ItunesSearch
     end
 
     private
+
+    def get_content_rating(itunes_html)
+      content_rating = itunes_html.search('div.rating').last
+      content_rating.content.strip.gsub(/\D/, '') if content_rating
+    end
+
     def get_category(itunes_html)
       category = itunes_html.search('.genre').last
       category.content.strip.gsub('Category: ', '') if category
