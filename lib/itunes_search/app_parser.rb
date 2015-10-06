@@ -98,7 +98,7 @@ module ItunesSearch
       # app.logo_url = get_logo_url app_content
       # app.short_description = get_short_description app_content
       # app.rating = get_app_rating app_content
-      return app
+      app
     end
   end
 end
